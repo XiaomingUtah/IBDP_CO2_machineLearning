@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "IBDP_CO2_machineLearning"
+version: "paper-release-2025"
+authors:
+  - family-names: Zhang
+    given-names: Xiaoming
+    affiliation: Energy & Geoscience Institute, University of Utah
+    orcid: https://doi.org/10.5281/zenodo.16002728
+date-released: 2025-07-16
+repository-code: https://github.com/XiaomingUtah/IBDP_CO2_machineLearning
+url: https://github.com/XiaomingUtah/IBDP_CO2_machineLearning/releases/tag/paper-release-2025
+abstract: >
+  This software supports the journal article titled "A Physics-Informed Dynamic and Constrained Machine Learning Framework for CO₂ Saturation Prediction in Geological Carbon Storage Reservoirs". 
+  It contains code for model training, dynamic input updating, and constrained learning for multiphase CO₂ flow in porous media.
