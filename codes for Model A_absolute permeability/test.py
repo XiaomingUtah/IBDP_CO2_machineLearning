@@ -5,8 +5,8 @@ Created on Sun May 18 15:42:10 2025
 @author: Xiaoming Zhang
 """
 
-from IPython import get_ipython
-get_ipython().magic('reset -sf')  # Reset all variables before the script runs
+# from IPython import get_ipython
+# get_ipython().magic('reset -sf')  # Reset all variables before the script runs
 
 # test.py
 
@@ -20,14 +20,27 @@ import os
 
 ISOTIMEFORMAT = '%Y-%m-%d %H:%M:%S'
 
-# ----------------------------------------
+# ---------------------------------------------------------
 # Change Working Directory
-# ----------------------------------------
-os.chdir(
-    'C:/Users/Xiaoming Zhang/Desktop/'
-    'postdoc_Xiaoming Zhang/IBDP_CO2_machineLearning/'
-    'First draft/Python code for Model A_absolute permeability_2025.4.30'
+# ---------------------------------------------------------
+# Update 'file_folder' to the path where you saved the folder
+# named 'codes for Model A_absolute_permeability'.
+# Example (Windows):
+#     file_folder = "C:/Users/YourName/Downloads/IBDP_CO2_machineLearning-main/codes for Model A_absolute permeability"
+# Example (Mac/Linux):
+#     file_folder = "/home/yourname/Downloads/IBDP_CO2_machineLearning-main/codes for Model A_absolute permeability"
+#
+# ⚠️ Make sure the folder path matches where you placed the code after unzipping
+# the GitHub/Zenodo repository on your machine.
+# ---------------------------------------------------------
+file_folder = (
+    'C:/Users/Xiaoming Zhang/Downloads/'
+    'IBDP_CO2_machineLearning-main/'
+    'codes for Model A_absolute permeability'
 )
+
+# Change the working directory
+os.chdir(file_folder)
 
 # ----------------------------------------
 # Simulation Constants
@@ -43,32 +56,51 @@ n_months = 50  # Monthly output
 # ----------------------------------------
 
 input_channels = 9
-# ----------------------------------------
-# Paths
-# ----------------------------------------
-root_directory = (
-    'C:/Users/Xiaoming Zhang/Desktop/postdoc_Xiaoming Zhang/'
-    'IBDP_CO2_machineLearning/dataset'
+
+# ---------------------------------------------------------
+# Data Directory
+# ---------------------------------------------------------
+# Update 'data_directory' to the path where you placed the dataset folder.
+# The dataset should be downloaded from Figshare:
+#     https://doi.org/10.6084/m9.figshare.26962108.v2
+#
+# After downloading, unzip the dataset and place it in a folder called "dataset".
+#
+# Example (Windows):
+#     data_directory = "C:/Users/YourName/Downloads/IBDP_CO2_machineLearning-main/dataset"
+#
+# Example (Mac/Linux):
+#     data_directory = "/home/yourname/Downloads/IBDP_CO2_machineLearning-main/dataset"
+#
+# ⚠️ Make sure the path points to the folder that contains the data files 
+# (e.g., x_coordinates.npy, y_coordinates.npy, etc.).
+# ---------------------------------------------------------
+data_directory = (
+    'C:/Users/Xiaoming Zhang/Downloads/'
+    'IBDP_CO2_machineLearning-main/'
+    'dataset'
 )
+print("Data directory:", data_directory)
+
 # ----------------------------------------
 # Coordinate Arrays
 # ----------------------------------------
-x_coordinates = np.load(f'{root_directory}/x_coordinates.npy').astype('float32')
-y_coordinates = np.load(f'{root_directory}/y_coordinates.npy').astype('float32')
-z_coordinates = np.load(f'{root_directory}/z_coordinates.npy').astype('float32')
+x_coordinates = np.load(f'{data_directory}/x_coordinates.npy').astype('float32')
+y_coordinates = np.load(f'{data_directory}/y_coordinates.npy').astype('float32')
+z_coordinates = np.load(f'{data_directory}/z_coordinates.npy').astype('float32')
 # ----------------------------------------
 # Test Data Inputs
 # ----------------------------------------
-perm_xyz_test         = np.load(f'{root_directory}/perm_xyz_test.npy').astype('float32')
-porosity_test         = np.load(f'{root_directory}/porosity_test.npy').astype('float32')
-inject_gir_month_test = np.load(f'{root_directory}/inject_gir_month_test.npy').astype('float32')
-time_test             = np.load(f'{root_directory}/time_test.npy').astype('float32')
-transMulti_xyz_test   = np.load(f'{root_directory}/transMulti_xyz_test.npy').astype('float32')
+perm_xyz_test         = np.load(f'{data_directory}/perm_xyz_test.npy').astype('float32')
+porosity_test         = np.load(f'{data_directory}/porosity_test.npy').astype('float32')
+inject_gir_month_test = np.load(f'{data_directory}/inject_gir_month_test.npy').astype('float32')
+time_test             = np.load(f'{data_directory}/time_test.npy').astype('float32')
+transMulti_xyz_test   = np.load(f'{data_directory}/transMulti_xyz_test.npy').astype('float32')
 
 # Saturation Tables and Labels for Testing
-drainage_satTable_test  = np.load(f'{root_directory}/drainage_satTable_test.npy')
-saturation_dataset_test = np.load(f'{root_directory}/saturation_dataset_test.npy').astype('float32')
-drainage_satMax_test    = np.load(f'{root_directory}/drainage_satMax_test.npy').astype('float32')
+drainage_satTable_test  = np.load(f'{data_directory}/drainage_satTable_test.npy')
+saturation_dataset_test = np.load(f'{data_directory}/saturation_dataset_test.npy').astype('float32')
+drainage_satMax_test    = np.load(f'{data_directory}/drainage_satMax_test.npy').astype('float32')
 
 # ----------------------------------------
 # Normalization Constants
@@ -112,6 +144,10 @@ plot_month = 50
 model_ysizeHalf = 16
 plot_layer = model_ysizeHalf
 plot_cases = test_cases
+
+results_folder = "./results_test_saturation"
+# Create the folder if it does not exist
+os.makedirs(results_folder, exist_ok=True)
 # ------------------------- Run Model and Plot at Month 50 -------------------------
 plt.rcParams['figure.dpi'] = 288
 for month in range(1, 50):
