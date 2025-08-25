@@ -7,8 +7,8 @@ Created on Wed May 21 11:53:35 2025
 # ----------------------------------------
 # Environment Setup
 # ----------------------------------------
-from IPython import get_ipython
-get_ipython().magic('reset -sf')  # Reset all variables before the script runs
+# from IPython import get_ipython
+# get_ipython().magic('reset -sf')  # Reset all variables before the script runs
 
 import os
 import sys
@@ -22,13 +22,23 @@ from torch.autograd import Variable
 
 ISOTIMEFORMAT = '%Y-%m-%d %H:%M:%S'
 
-# ----------------------------------------
+# ---------------------------------------------------------
 # Change Working Directory
-# ----------------------------------------
+# ---------------------------------------------------------
+# Update 'file_folder' to the path where you saved the folder
+# named 'codes for Model A_absolute_permeability'.
+# Example (Windows):
+#     file_folder = "C:/Users/YourName/Downloads/IBDP_CO2_machineLearning-main/codes for Model B_effective permeability"
+# Example (Mac/Linux):
+#     file_folder = "/home/yourname/Downloads/IBDP_CO2_machineLearning-main/codes for Model B_effective permeability"
+#
+# ⚠️ Make sure the folder path matches where you placed the code after unzipping
+# the GitHub/Zenodo repository on your machine.
+# ---------------------------------------------------------
 file_folder = (
-    'C:/Users/Xiaoming Zhang/Desktop/'
-    'postdoc_Xiaoming Zhang/IBDP_CO2_machineLearning/'
-    'First draft/Python code for Model B_effective permeability_2025.4.30'
+    'C:/Users/Xiaoming Zhang/Downloads/'
+    'IBDP_CO2_machineLearning-main/'
+    'codes for Model B_effective permeability'
 )
 
 # Change the working directory
@@ -44,41 +54,58 @@ model_ysize = 32
 model_zsize = 32
 n_months = 50  # Monthly output
 
-# ----------------------------------------
-# Paths
-# ----------------------------------------
-root_directory = (
-    'C:/Users/Xiaoming Zhang/Desktop/postdoc_Xiaoming Zhang/'
-    'IBDP_CO2_machineLearning/dataset'
+# ---------------------------------------------------------
+# Data Directory
+# ---------------------------------------------------------
+# Update 'data_directory' to the path where you placed the dataset folder.
+# The dataset should be downloaded from Figshare:
+#     https://doi.org/10.6084/m9.figshare.26962108.v2
+#
+# After downloading, unzip the dataset and place it in a folder called "dataset".
+#
+# Example (Windows):
+#     data_directory = "C:/Users/YourName/Downloads/IBDP_CO2_machineLearning-main/dataset"
+#
+# Example (Mac/Linux):
+#     data_directory = "/home/yourname/Downloads/IBDP_CO2_machineLearning-main/dataset"
+#
+# ⚠️ Make sure the path points to the folder that contains the data files 
+# (e.g., x_coordinates.npy, y_coordinates.npy, etc.).
+# ---------------------------------------------------------
+data_directory = (
+    'C:/Users/Xiaoming Zhang/Downloads/'
+    'IBDP_CO2_machineLearning-main/'
+    'dataset'
 )
+print("Data directory:", data_directory)
 
 # ----------------------------------------
 # Coordinate Arrays
 # ----------------------------------------
-x_coordinates = np.load(f'{root_directory}/x_coordinates.npy').astype('float32')
-y_coordinates = np.load(f'{root_directory}/y_coordinates.npy').astype('float32')
-z_coordinates = np.load(f'{root_directory}/z_coordinates.npy').astype('float32')
+x_coordinates = np.load(f'{data_directory}/x_coordinates.npy').astype('float32')
+y_coordinates = np.load(f'{data_directory}/y_coordinates.npy').astype('float32')
+z_coordinates = np.load(f'{data_directory}/z_coordinates.npy').astype('float32')
 
 # ----------------------------------------
 # Training Data Inputs
 # ----------------------------------------
-perm_xyz_train         = np.load(f'{root_directory}/perm_xyz_train.npy').astype('float32')
-porosity_train         = np.load(f'{root_directory}/porosity_train.npy').astype('float32')
-inject_gir_month_train = np.load(f'{root_directory}/inject_gir_month_train.npy').astype('float32')
-time_train             = np.load(f'{root_directory}/time_train.npy').astype('float32')
-transMulti_xyz_train   = np.load(f'{root_directory}/transMulti_xyz_train.npy').astype('float32')
+perm_xyz_train         = np.load(f'{data_directory}/perm_xyz_train.npy').astype('float32')
+porosity_train         = np.load(f'{data_directory}/porosity_train.npy').astype('float32')
+inject_gir_month_train = np.load(f'{data_directory}/inject_gir_month_train.npy').astype('float32')
+time_train             = np.load(f'{data_directory}/time_train.npy').astype('float32')
+transMulti_xyz_train   = np.load(f'{data_directory}/transMulti_xyz_train.npy').astype('float32')
 
 # Placeholder arrays for capillary pressure and relative permeability
 capi_drainage_train_orig  = np.zeros((trainCases, model_xsize, model_ysize, model_zsize, n_months))
 rePerm_drainage_train_orig = np.zeros((trainCases, model_xsize, model_ysize, model_zsize, n_months))
 
 # Saturation Tables for Training and Validation
-drainage_satTable_trainOnly = np.load(f'{root_directory}/drainage_satTable_trainOnly.npy')
-drainage_satTable_validate  = np.load(f'{root_directory}/drainage_satTable_validate.npy')
+drainage_satTable_trainOnly = np.load(f'{data_directory}/drainage_satTable_trainOnly.npy')
+drainage_satTable_validate  = np.load(f'{data_directory}/drainage_satTable_validate.npy')
 
 # Saturation Labels for Training
-saturation_dataset_train = np.load(f'{root_directory}/saturation_dataset_train.npy').astype('float32')
-drainage_satMax_train     = np.load(f'{root_directory}/drainage_satMax_train.npy').astype('float32')
+saturation_dataset_train = np.load(f'{data_directory}/saturation_dataset_train.npy').astype('float32')
+drainage_satMax_train     = np.load(f'{data_directory}/drainage_satMax_train.npy').astype('float32')
 
 # ----------------------------------------
 # Normalization Constants
@@ -89,34 +116,7 @@ porosity_max = 0.274972
 porosity_min = 0.000115415
 #######################################################################################
 # 1. Imports and Initialization
-import importlib.util
-def load_module_from_path(module_name, file_path):
-    """
-    Load a Python module from a specific file path.
-
-    Parameters:
-        module_name (str): A name for the module (can be any string, does not have to match the file name)
-        file_path (str): The full file path to the .py file
-
-    Returns:
-        module: The loaded module object, which can be used as module.ClassName or module.function_name
-    """
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-# Create the full path to the Python file
-file_path = os.path.join(file_folder, 'DfpNet_3D.py')
-
-# Load the module
-DfpNet_3D = load_module_from_path('DfpNet_3D', file_path)
-
-# print(DfpNet_3D.__file__)
-
-# Use the classes or functions from the module
-TurbNetG = DfpNet_3D.TurbNetG
-weights_init = DfpNet_3D.weights_init
+from DfpNet_3D import TurbNetG, weights_init
 
 from satFuncFitting import satFuncFitting
 import numpy as np
@@ -241,6 +241,8 @@ y_validate_batch = y_validate.reshape((validate_batch_number, batch_size_validat
 y_drainage_satMax_validate_batch = y_drainage_satMax_validate.reshape((validate_batch_number, batch_size_validate, model_xsize, model_ysize, model_zsize))
 
 # 6. Training Setup
+# NOTE: Please change the learning parameters (e.g., learning rate, batch size, epochs) 
+# based on your specific case and dataset.
 epochs = 800
 epochs_drop = epochs // 10
 
@@ -248,6 +250,10 @@ L1_accum_array = np.zeros(epochs)
 L1val_accum_array = np.zeros(epochs)
 
 # File handles
+error_recordFolder = "./error_recordFiles"
+# Create the folder if it does not exist
+os.makedirs(error_recordFolder, exist_ok=True)
+
 f_trainError = open("./error_recordFiles/trainError.txt", "w")
 f_validateError = open("./error_recordFiles/validateError.txt", "w")
 f_trainErrorOnly = open("./error_recordFiles/trainErrorOnly.txt", "w")
@@ -258,7 +264,10 @@ y_predict_train = np.zeros((train_cases, model_xsize, model_ysize, model_zsize, 
 y_predict_validate = np.zeros((validateCases, model_xsize, model_ysize, model_zsize, n_months))
 
 # 7. Training and Validation Loop
-# Training and Validation Loop
+trainedModel_folder = "./saved_trainedModels"
+# Create the folder if it does not exist
+os.makedirs(trainedModel_folder, exist_ok=True)
+
 for epoch in range(epochs):
     print("Starting epoch {} / {}".format((epoch + 1), epochs))
 
